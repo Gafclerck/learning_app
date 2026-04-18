@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Text, DateTime
-from core.db import Base
+from app.core.db import Base
 from datetime import datetime
 
 class Verification(Base):

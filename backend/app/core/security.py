@@ -1,11 +1,8 @@
 import random
 import string
-
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta, timezone
-from models.user import User
-from core.config import settings
-from sqlalchemy.orm import Session
+from app.core.config import settings
 import jwt
 
 password_hasher = PasswordHash.recommended()
@@ -16,16 +13,6 @@ def hash_password(password : str):
 
 def verify_password(password : str, hashed_password : str):
     return password_hasher.verify(password, hashed_password)
-
-def authenticate_user(email: str, password: str, db: Session):
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        verify_password(password, DUMPMY_HASH)
-        return False
-    if not verify_password(password, user.password):
-        return False
-    return user
-
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

@@ -2,12 +2,12 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from typing import Annotated
 from datetime import timedelta, datetime, timezone
 
-from schema import VerifyCodeRequest
-from core.config import settings
-from models.user import User
-from models.verification import Verification
-from core.security import generate_code
-from api.deps import SessionDep, CurrentUser
+from app.schema.schema import VerifyCodeRequest
+from app.core.config import settings
+from app.models.user import User
+from app.models.verification import Verification
+from app.core.security import generate_code
+from app.api.deps import SessionDep, CurrentUser
 
 router = APIRouter()
 
@@ -32,6 +32,7 @@ def send_code(user: CurrentUser, session: SessionDep):
 
 @router.post("/verify")
 def verify(request: VerifyCodeRequest, session: SessionDep):
+    #hmm there is a security problem here , another user can verify the account of another user if they have the email 
     user = session.query(User).filter(User.email == request.email).first()
     if not user:
         raise HTTPException(
@@ -49,7 +50,7 @@ def verify(request: VerifyCodeRequest, session: SessionDep):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid verification code or email.",
         )
-    if datetime.now() > code_entry.expiration_date:
+    if datetime.now(timezone.utc) > code_entry.expiration_date:
         session.query(Verification).filter(Verification.email == request.email).delete()
         session.commit()
         raise HTTPException(
