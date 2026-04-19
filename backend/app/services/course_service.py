@@ -20,7 +20,7 @@ def create_course(db: Session, data: CourseCreate, teacher: User) -> Course:
 
 
 def get_all_courses(db: Session) -> list[Course]:
-    """Retourne uniquement les cours publiés — visibles par tous"""
+    """Return only published courses — visible to everyone"""
     return db.query(Course).filter(Course.is_published == True).all()
 
 
@@ -29,7 +29,7 @@ def get_course_by_id(db: Session, course_id: int) -> Course:
     if not course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cours introuvable"
+            detail="Course not found"
         )
     return course
 
@@ -40,7 +40,7 @@ def update_course(db: Session, course_id: int, data: CourseUpdate, teacher: User
     if course.teacher_id != teacher.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Vous n'êtes pas le propriétaire de ce cours"
+            detail="You are not the owner of this course"
         )
 
     for field, value in data.model_dump(exclude_unset=True).items():
@@ -57,7 +57,7 @@ def delete_course(db: Session, course_id: int, teacher: User) -> None:
     if course.teacher_id != teacher.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Vous n'êtes pas le propriétaire de ce cours"
+            detail="You are not the owner of this course"
         )
 
     db.delete(course)
@@ -72,10 +72,10 @@ def create_lesson(db: Session, course_id: int, data: LessonCreate, teacher: User
     if course.teacher_id != teacher.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Vous n'êtes pas le propriétaire de ce cours"
+            detail="You are not the owner of this course"
         )
 
-    # Vérifier qu'une leçon avec le même ordre n'existe pas déjà
+    # Check that a lesson with the same order doesn't already exist
     existing = db.query(Lesson).filter(
         Lesson.course_id == course_id,
         Lesson.order == data.order
@@ -84,7 +84,7 @@ def create_lesson(db: Session, course_id: int, data: LessonCreate, teacher: User
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Une leçon avec l'ordre {data.order} existe déjà dans ce cours"
+            detail=f"A lesson with order {data.order} already exists in this course"
         )
 
     lesson = Lesson(**data.model_dump(), course_id=course_id)
@@ -100,14 +100,14 @@ def update_lesson(db: Session, lesson_id: int, data: LessonUpdate, teacher: User
     if not lesson:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Leçon introuvable"
+            detail="Lesson not found"
         )
 
-    # Vérifier que le teacher est bien le propriétaire du cours parent
+    # Check that the teacher is the owner of the parent course
     if lesson.course.teacher_id != teacher.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Vous n'êtes pas le propriétaire de ce cours"
+            detail="You are not the owner of this course"
         )
 
     for field, value in data.model_dump(exclude_unset=True).items():

@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.get("", response_model=list[CourseResponse])
 def list_courses(db : SessionDep):
-    """Public — tout le monde peut voir les cours publiés"""
+    """Public — everyone can see published courses"""
     return get_all_courses(db)
 
 
@@ -34,7 +34,7 @@ def create(
     db : SessionDep,
     current_user: RequireTeacher
 ):
-    """Réservé aux teachers"""
+    """Reserved for teachers only"""
     return create_course(db, data, current_user)
 
 
