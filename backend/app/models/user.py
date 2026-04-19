@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 class UserRole(enum.Enum):
     student = "student"
     teacher = "teacher"
-    admin   = "admin"
+    admin = "admin"
 
 class User(Base):
     __tablename__ = "users"
@@ -21,7 +21,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
-    # teacher has courses
+    # Teacher has courses
     courses: Mapped[list["Course"]] = relationship("Course", back_populates="teacher")
-    # student has enrollements
+    # Student has enrollments
     enrollments: Mapped[list["Enrollment"]] = relationship("Enrollment", back_populates="user")

@@ -36,13 +36,13 @@ def register_user(db: Session, user_in: RegistrationRequest|AdminRegistrationReq
     return user
 
 
-def login_user(db: Session, form_data : OAuth2PasswordRequestForm) -> str:
+def login_user(db: Session, form_data: OAuth2PasswordRequestForm) -> str:
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
-            status_code= status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not Authenticated",
-            headers={"WWW-Authenticate" : "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"}
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

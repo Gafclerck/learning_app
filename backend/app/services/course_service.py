@@ -64,7 +64,7 @@ def delete_course(db: Session, course_id: int, teacher: User) -> None:
     db.commit()
 
 
-#leçons services ===========================================================
+#lesson services ===========================================================
 
 def create_lesson(db: Session, course_id: int, data: LessonCreate, teacher: User) -> Lesson:
     course = get_course_by_id(db, course_id)

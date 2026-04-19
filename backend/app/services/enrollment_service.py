@@ -52,10 +52,10 @@ def enroll_student(db: Session, course_id: int, student: User) -> Enrollment:
     # Only the first lesson is unlocked
     for index, lesson in enumerate(lessons):
         progress = LessonProgress(
-            enrollment_id = enrollment.id,
-            lesson_id     = lesson.id,
-            is_unlocked   = (index == 0),  # True seulement pour la première
-            is_completed  = False
+            enrollment_id=enrollment.id,
+            lesson_id=lesson.id,
+            is_unlocked=(index == 0),  # True only for the first
+            is_completed=False
         )
         db.add(progress)
 
@@ -77,7 +77,7 @@ def complete_lesson(
 
     # Check that the student is enrolled in this course
     enrollment = db.query(Enrollment).filter(
-        Enrollment.user_id   == student.id,
+        Enrollment.user_id == student.id,
         Enrollment.course_id == course_id
     ).first()
 
@@ -90,7 +90,7 @@ def complete_lesson(
     # Get the progress for this lesson
     progress = db.query(LessonProgress).filter(
         LessonProgress.enrollment_id == enrollment.id,
-        LessonProgress.lesson_id     == lesson_id
+        LessonProgress.lesson_id == lesson_id
     ).first()
 
     if not progress:
@@ -125,14 +125,14 @@ def complete_lesson(
     # Find the next lesson in this course
     next_lesson = db.query(Lesson).filter(
         Lesson.course_id == course_id,
-        Lesson.order     == current_lesson.order + 1
+        Lesson.order == current_lesson.order + 1
     ).first()
 
     if next_lesson:
         # Unlock the progress of the next lesson
         next_progress = db.query(LessonProgress).filter(
             LessonProgress.enrollment_id == enrollment.id,
-            LessonProgress.lesson_id     == next_lesson.id
+            LessonProgress.lesson_id == next_lesson.id
         ).first()
 
         if next_progress:
@@ -178,26 +178,26 @@ def get_course_progress(
     for lesson in lessons:
         progress = db.query(LessonProgress).filter(
             LessonProgress.enrollment_id == enrollment.id,
-            LessonProgress.lesson_id     == lesson.id
+            LessonProgress.lesson_id == lesson.id
         ).first()
 
         if progress and progress.is_completed:
             completed += 1
 
         roadmap.append({
-            "lesson_id"    : lesson.id,
-            "title"        : lesson.title,
-            "order"        : lesson.order,
-            "is_unlocked"  : progress.is_unlocked  if progress else False,
-            "is_completed" : progress.is_completed if progress else False,
-            "completed_at" : progress.completed_at if progress else None,
+            "lesson_id": lesson.id,
+            "title": lesson.title,
+            "order": lesson.order,
+            "is_unlocked": progress.is_unlocked if progress else False,
+            "is_completed": progress.is_completed if progress else False,
+            "completed_at": progress.completed_at if progress else None,
         })
 
     return {
-        "course_id"          : course_id,
-        "enrollment_status"  : enrollment.status.value,
-        "total_lessons"      : total,
-        "completed_lessons"  : completed,
-        "percentage"         : round((completed / total) * 100) if total > 0 else 0,
-        "roadmap"            : roadmap
+        "course_id": course_id,
+        "enrollment_status": enrollment.status.value,
+        "total_lessons": total,
+        "completed_lessons": completed,
+        "percentage": round((completed / total) * 100) if total > 0 else 0,
+        "roadmap": roadmap
     }

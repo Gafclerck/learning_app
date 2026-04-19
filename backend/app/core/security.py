@@ -8,10 +8,10 @@ import jwt
 password_hasher = PasswordHash.recommended()
 DUMPMY_HASH = password_hasher.hash("dummygafarpassword")
 
-def hash_password(password : str):  
+def hash_password(password: str):  
     return password_hasher.hash(password)
 
-def verify_password(password : str, hashed_password : str):
+def verify_password(password: str, hashed_password: str):
     return password_hasher.verify(password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

@@ -9,23 +9,23 @@ class RegistrationRequest(BaseModel):
 
 
 class AdminRegistrationRequest(RegistrationRequest):
-    role : UserRole
+    role: UserRole
 
 class UserResponse(BaseModel):
-    id         : int
-    name       : str
-    email      : str
-    role       : UserRole
-    is_active  : bool
-    created_at : datetime
+    id: int
+    name: str
+    email: str
+    role: UserRole
+    is_active: bool
+    created_at: datetime
     
     class Config:
         from_attributes = True  
 
 
 class VerifyCodeRequest(BaseModel):
-    email : EmailStr
-    code : str = Field(..., max_length=6, min_length=6)
+    email: EmailStr
+    code: str = Field(..., max_length=6, min_length=6)
 
 
 class Token(BaseModel):

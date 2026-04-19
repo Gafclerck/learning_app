@@ -13,27 +13,27 @@ router = APIRouter()
 
 @router.post("/{course_id}/enroll", response_model=EnrollmentResponse, status_code=201)
 def enroll(
-    course_id    : int,
-    db           :SessionDep,
-    current_user : CurrentUser
+    course_id: int,
+    db: SessionDep,
+    current_user: CurrentUser
 ):
     return enroll_student(db, course_id, current_user)
 
 
 @router.post("/{course_id}/lessons/{lesson_id}/complete")
 def complete(
-    course_id    : int,
-    lesson_id    : int,
-    db           :SessionDep,
-    current_user : CurrentUser
+    course_id: int,
+    lesson_id: int,
+    db: SessionDep,
+    current_user: CurrentUser
 ):
     return complete_lesson(db, course_id, lesson_id, current_user)
 
 
 @router.get("/{course_id}/progress", response_model=CourseProgressResponse)
 def progress(
-    course_id    : int,
-    db           :SessionDep,
-    current_user : CurrentUser
+    course_id: int,
+    db: SessionDep,
+    current_user: CurrentUser
 ):
     return get_course_progress(db, course_id, current_user)

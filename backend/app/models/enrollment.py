@@ -23,7 +23,7 @@ class Enrollment(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     course_id: Mapped[int] = mapped_column(Integer, ForeignKey("courses.id"))
 
-    # Relations
+    # Relationships
     user: Mapped["User"] = relationship("User", back_populates="enrollments")
     course: Mapped["Course"] = relationship("Course", back_populates="enrollments")
     progress: Mapped[list["LessonProgress"]] = relationship("LessonProgress", back_populates="enrollment")
@@ -40,6 +40,6 @@ class LessonProgress(Base):
     enrollment_id: Mapped[int] = mapped_column(Integer, ForeignKey("enrollments.id"))
     lesson_id: Mapped[int] = mapped_column(Integer, ForeignKey("lessons.id"))
 
-    # Relations
+    # Relationships
     enrollment: Mapped["Enrollment"] = relationship("Enrollment", back_populates="progress")
     lesson: Mapped["Lesson"] = relationship("Lesson")
