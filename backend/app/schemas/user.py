@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime
+from app.models.user import UserRole
 
 class RegistrationRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -6,10 +8,19 @@ class RegistrationRequest(BaseModel):
     password: str = Field(..., min_length=6, max_length=100)
 
 
+class AdminRegistrationRequest(RegistrationRequest):
+    role : UserRole
+
 class UserResponse(BaseModel):
-    name: str
-    email: EmailStr
-    is_verified: bool
+    id         : int
+    name       : str
+    email      : str
+    role       : UserRole
+    is_active  : bool
+    created_at : datetime
+    
+    class Config:
+        from_attributes = True  
 
 
 class VerifyCodeRequest(BaseModel):

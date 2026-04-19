@@ -11,5 +11,7 @@ class Settings(BaseSettings):
     VERIFICATION_CODE_EXPIRE_MINUTES: int = 15
     all_cors_origins: list = ["*"]
     ENVIRONMENT: str = "local"
+    FIRST_SUPERUSER: str
+    FIRST_SUPERUSER_PASSWORD: str
 
 settings = Settings()

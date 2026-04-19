@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
-from app.core.db import Base
+from app.core.base import Base
 from app.core.config import settings
 from app.models import *
 

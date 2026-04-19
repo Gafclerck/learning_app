@@ -6,8 +6,8 @@ from fastapi import HTTPException, status
 
 from app.core.security import hash_password, verify_password, create_access_token, DUMPMY_HASH
 from app.models.user import User
-from app.schema.schema import RegistrationRequest
 from app.core.config import settings
+from app.schemas.user import AdminRegistrationRequest, RegistrationRequest
 
 def authenticate_user(email: str, password: str, db: Session):
     user = db.query(User).filter(User.email == email).first()
@@ -19,15 +19,17 @@ def authenticate_user(email: str, password: str, db: Session):
     return user
 
 
-def register_user(db: Session, user_in: RegistrationRequest) -> User:
+def register_user(db: Session, user_in: RegistrationRequest|AdminRegistrationRequest) -> User:
     db_user = db.query(User).filter(User.email == user_in.email).first()
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="Email already registered"
         )
-    hashed_password = hash_password(user_in.password)
-    user = User(name=user_in.name, email=user_in.email, password_hash=hashed_password)
+    user = User(**user_in.model_dump(exclude={"password"}))
+    user.password_hash = hash_password(user_in.password)
+    # i'm doing this to handle account creation by users without the role 
+    # and for admin account creation, the role will be handled in the route function and not in the service function
     db.add(user)
     db.commit()
     db.refresh(user)

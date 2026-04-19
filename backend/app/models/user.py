@@ -1,8 +1,9 @@
 import enum
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Text, Boolean, Enum as SAEnum, DateTime
-from app.core.db import Base
+from app.core.base import Base
 from datetime import datetime, timezone
+from sqlalchemy.orm import relationship
 
 class UserRole(enum.Enum):
     student = "student"
@@ -19,3 +20,5 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean,default=False)
     is_active  : Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at : Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+
+    courses : Mapped[list["Course"]] = relationship("Course", back_populates="teacher")

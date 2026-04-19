@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from typing import Annotated
 from datetime import timedelta, datetime, timezone
 
-from app.schema.schema import VerifyCodeRequest
+from app.schemas.user import VerifyCodeRequest
 from app.core.config import settings
 from app.models.user import User
 from app.models.verification import Verification
