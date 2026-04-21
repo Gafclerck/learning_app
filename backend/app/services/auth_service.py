@@ -1,9 +1,12 @@
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from app.models.user import User
 from fastapi import HTTPException, status
+import jwt
+from jwt.exceptions import InvalidTokenError
 
+from app.models.user import User
 from app.core.security import hash_password, verify_password, create_access_token, DUMPMY_HASH
 from app.models.user import User
 from app.core.config import settings
@@ -28,8 +31,8 @@ def register_user(db: Session, user_in: RegistrationRequest|AdminRegistrationReq
         )
     user = User(**user_in.model_dump(exclude={"password"}))
     user.password_hash = hash_password(user_in.password)
-    # i'm doing this to handle account creation by users without the role 
-    # and for admin account creation, the role will be handled in the route function and not in the service function
+    # i'm doing this to hande account creation by users without the role 
+    # and for admin account creation , the role will be handled in the route function and not in the service fonction
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -49,3 +52,14 @@ def login_user(db: Session, form_data: OAuth2PasswordRequestForm) -> str:
         data={"sub": user.email, "role": user.role.value}, expires_delta=access_token_expires
     )
     return access_token
+
+def get_user_from_token(db: Session, token: str):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            return None
+    except (InvalidTokenError, ValidationError):
+        return None
+    user = db.query(User).filter(User.email == username).first()
+    return user

@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.api.deps import RequireAdmin, RequireTeacher, SessionDep, CurrentUser
-from app.models.user import User
+from app.api.deps import RequireTeacher, SessionDep
 from app.schemas.course import (
     CourseCreate, CourseUpdate, CourseResponse, CourseDetailResponse,
     LessonCreate, LessonUpdate, LessonResponse
