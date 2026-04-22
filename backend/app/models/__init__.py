@@ -5,3 +5,4 @@ from app.models.lesson import Lesson
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.payment import Payment
 from app.models.message import Message
+from app.models.embedding import CourseEmbedding

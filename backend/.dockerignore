@@ -1,0 +1,22 @@
+# Environnement virtuel - inutile dans le conteneur
+# le conteneur installe ses propres dépendances
+venv/
+
+# Cache Python — inutile
+__pycache__/
+*.pyc
+*.pyo
+
+# Variables d'environnement - on les passe autrement
+.env
+
+# Git - inutile dans l'image
+.git/
+.gitignore
+
+# Fichiers Docker eux-mêmes — pas besoin dans l'image
+Dockerfile
+docker-compose.yml
+
+# Données locales
+*.db

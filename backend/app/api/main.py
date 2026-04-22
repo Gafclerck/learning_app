@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
-from app.api.routes import auth, users, verification, courses, enrollment, payment, chat
+from app.api.routes import (auth, users, verification, 
+                        courses, enrollment, payment,
+                        chat, ai)
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -10,3 +12,4 @@ api_router.include_router(courses.router, prefix="/courses", tags=["courses"])
 api_router.include_router(enrollment.router, prefix="/enrollments", tags=["enrollments"])
 api_router.include_router(payment.router, prefix="/payments", tags=["payments"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
+api_router.include_router(ai.router, prefix="/ai", tags=["AI"])

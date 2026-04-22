@@ -4,7 +4,7 @@ from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.user import User
 from app.schemas.course import CourseCreate, CourseUpdate, LessonCreate, LessonUpdate
-
+from app.services.ai_service import index_course
 
 #course services ===========================================================
 
@@ -16,6 +16,7 @@ def create_course(db: Session, data: CourseCreate, teacher: User) -> Course:
     db.add(course)
     db.commit()
     db.refresh(course)
+    index_course(db, course.id)
     return course
 
 
@@ -45,9 +46,10 @@ def update_course(db: Session, course_id: int, data: CourseUpdate, teacher: User
 
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(course, field, value)
-
     db.commit()
     db.refresh(course)
+    if "title" in data.model_dump(exclude_unset=True) or "description" in data.model_dump(exclude_unset=True):
+        index_course(db, course.id)
     return course
 
 

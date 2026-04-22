@@ -1,0 +1,60 @@
+services:
+  db:
+    # Image officielle PostgreSQL avec pgvector préinstallé
+    # pgvector/pgvector:pg17 = pgvector sur PostgreSQL 17
+    image: pgvector/pgvector:pg17
+
+    container_name: learning_db
+
+    environment:
+      POSTGRES_USER     : postgres
+      POSTGRES_PASSWORD : postgres
+      POSTGRES_DB       : learning_db
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      #persistance des donneés
+      - postgres_data:/var/lib/postgresql/data
+
+    # Vérifie que PostgreSQL est prêt avant de démarrer l'API
+    healthcheck:
+      test     : ["CMD-SHELL", "pg_isready -U postgres"]
+      interval : 5s
+      timeout  : 5s
+      retries  : 5
+  api:
+    # Construit l'image depuis le Dockerfile dans ce dossier
+    build: .
+
+    container_name: learning_api
+
+    ports:
+      - "8000:8000"
+
+    # Ne démarre que quand db est healthy
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL      : postgresql+psycopg://postgres:postgres@db:5432/learning_db
+      SECRET_KEY        : change_this_in_production
+      ENVIRONMENT       : development
+      STRIPE_SECRET_KEY : ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY : ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_WEBHOOK_SECRET  : ${STRIPE_WEBHOOK_SECRET}
+      FRONTEND_URL      : http://localhost:3000
+      SUPERUSER_EMAIL   : ${SUPERUSER_EMAIL}
+      SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD}
+
+    # Monte ton code source dans le conteneur
+    # Chaque modification de code est visible instantanément
+    # sans rebuild de l'image
+    volumes:
+      - .:/app
+
+# Déclaration obligatoire des volumes utilisés plus haut
+volumes:
+  postgres_data:
