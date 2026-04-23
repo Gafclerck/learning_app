@@ -42,13 +42,9 @@ services:
       DATABASE_URL      : postgresql+psycopg://postgres:postgres@db:5432/learning_db
       SECRET_KEY        : change_this_in_production
       ENVIRONMENT       : development
-      STRIPE_SECRET_KEY : ${STRIPE_SECRET_KEY}
-      STRIPE_PUBLISHABLE_KEY : ${STRIPE_PUBLISHABLE_KEY}
-      STRIPE_WEBHOOK_SECRET  : ${STRIPE_WEBHOOK_SECRET}
       FRONTEND_URL      : http://localhost:3000
-      SUPERUSER_EMAIL   : ${SUPERUSER_EMAIL}
-      SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD}
-
+    env_file:
+      - .env 
     # Monte ton code source dans le conteneur
     # Chaque modification de code est visible instantanément
     # sans rebuild de l'image

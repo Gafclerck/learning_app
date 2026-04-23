@@ -1,24 +1,19 @@
-from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.models.course import Course
 from app.models.embedding import CourseEmbedding
 from app.models.enrollment import Enrollment
 from app.models.user import User
+from fastembed import TextEmbedding
 
 # Charge le modèle une seule fois au démarrage
 # Le modèle est téléchargé automatiquement la première fois
-model = SentenceTransformer("all-MiniLM-L6-v2")
 
+model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 def generate_embedding(text: str) -> list[float]:
-    """
-    Transforme un texte en vecteur numérique.
-    C'est le coeur du système - deux textes similaires
-    produisent des vecteurs proches.
-    """
-    embedding = model.encode(text)
-    return embedding.tolist()
+    embeddings = list(model.embed([text]))
+    return embeddings[0].tolist()
 
 
 def get_course_text(course: Course) -> str:
@@ -103,6 +98,9 @@ def get_recommendations(
     vectors      = [e.embedding for e in enrolled_embeddings]
     profile      = np.mean(vectors, axis=0).tolist()
     profile_str  = "[" + ",".join(map(str, profile)) + "]"
+    
+    # Format enrolled_ids as PostgreSQL array string: {1,2,3}
+    enrolled_ids_str = "{" + ",".join(map(str, enrolled_course_ids)) + "}" if enrolled_course_ids else "{0}"
 
     # Requête pgvector - trouver les cours les plus similaires au profil
     # <=> est l'opérateur de distance cosine de pgvector
@@ -115,19 +113,19 @@ def get_recommendations(
             c.level,
             c.price,
             c.is_free,
-            1 - (ce.embedding <=> :profile::vector) AS similarity_score
+            1 - (ce.embedding <=> CAST(:profile AS vector)) AS similarity_score
         FROM courses c
         JOIN course_embeddings ce ON ce.course_id = c.id
         WHERE
             c.is_published = true
-            AND c.id NOT IN :enrolled_ids
-        ORDER BY ce.embedding <=> :profile::vector
+            AND c.id != ALL(CAST(:enrolled_ids AS integer[]))
+        ORDER BY ce.embedding <=> CAST(:profile AS vector)
         LIMIT :limit
     """)
 
     results = db.execute(query, {
         "profile"      : profile_str,
-        "enrolled_ids" : tuple(enrolled_course_ids) if enrolled_course_ids else (0,),
+        "enrolled_ids" : enrolled_ids_str,
         "limit"        : limit
     }).fetchall()
 
