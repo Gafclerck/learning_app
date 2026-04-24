@@ -21,6 +21,8 @@ def init_db(session: Session):
     from app.schemas.user import AdminRegistrationRequest
     from app.models.user import UserRole
     from app.services.auth_service import register_user
+    from fastapi import HTTPException
+
     user_in = AdminRegistrationRequest(
         name="Admin",
         email=settings.FIRST_SUPERUSER,
@@ -28,4 +30,9 @@ def init_db(session: Session):
         role=UserRole.admin,
         is_active=True,
     )
-    register_user(session, user_in)
+
+    try:
+        register_user(session, user_in)
+    except HTTPException:
+        # Superuser already exists - nothing to do
+        pass
