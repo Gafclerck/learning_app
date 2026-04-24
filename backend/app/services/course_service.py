@@ -2,9 +2,10 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.course import Course
 from app.models.lesson import Lesson
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.course import CourseCreate, CourseUpdate, LessonCreate, LessonUpdate
 from app.services.ai_service import index_course
+from app.models.enrollment import Enrollment
 
 #course services ===========================================================
 
@@ -23,6 +24,15 @@ def create_course(db: Session, data: CourseCreate, teacher: User) -> Course:
 def get_all_courses(db: Session) -> list[Course]:
     """Return only published courses — visible to everyone"""
     return db.query(Course).filter(Course.is_published == True).all()
+
+def get_my_courses(db: Session, teacher: User) -> list[Course]:
+    """Teacher-only — includes unpublished courses owned by teacher."""
+    return (
+        db.query(Course)
+        .filter(Course.teacher_id == teacher.id)
+        .order_by(Course.created_at.desc())
+        .all()
+    )
 
 
 def get_course_by_id(db: Session, course_id: int) -> Course:
@@ -137,3 +147,27 @@ def delete_lesson(db: Session, lesson_id: int, teacher: User) -> None:
 
     db.delete(lesson)
     db.commit()
+
+def get_lesson_by_id(db: Session, lesson_id: int, user: User) -> Lesson:
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lesson not found"
+        )
+    if user.role == UserRole.teacher and lesson.course.teacher_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not the owner of this lesson"
+        )
+    elif user.role == UserRole.student:
+        enrolled = db.query(Enrollment).filter(
+            Enrollment.course_id == lesson.course_id,
+            Enrollment.user_id == user.id
+        ).first()
+        if not enrolled:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not enrolled in this course"
+            )
+    return lesson

@@ -5,6 +5,7 @@ from app.models.enrollment import Enrollment, LessonProgress, EnrollmentStatus
 from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.user import User
+from sqlalchemy.orm import joinedload
 
 
 def enroll_student(db: Session, course_id: int, student: User) -> Enrollment:
@@ -201,3 +202,62 @@ def get_course_progress(
         "percentage": round((completed / total) * 100) if total > 0 else 0,
         "roadmap": roadmap
     }
+
+
+def list_my_enrollments(db: Session, student: User) -> list[dict]:
+    """
+    Lists all enrollments for the current student with a lightweight progress summary.
+    """
+    enrollments = (
+        db.query(Enrollment)
+        .options(joinedload(Enrollment.course))
+        .filter(Enrollment.user_id == student.id)
+        .order_by(Enrollment.enrolled_at.desc())
+        .all()
+    )
+
+    results: list[dict] = []
+    for enrollment in enrollments:
+        # Fetch progress rows with lesson order (for next lesson selection)
+        rows = (
+            db.query(LessonProgress, Lesson)
+            .join(Lesson, Lesson.id == LessonProgress.lesson_id)
+            .filter(LessonProgress.enrollment_id == enrollment.id)
+            .order_by(Lesson.order.asc())
+            .all()
+        )
+
+        total = len(rows)
+        completed = sum(1 for (p, _lesson) in rows if p.is_completed)
+        percentage = round((completed / total) * 100) if total > 0 else 0
+
+        next_lesson_id = None
+        for (p, lesson) in rows:
+            if p.is_unlocked and not p.is_completed:
+                next_lesson_id = lesson.id
+                break
+
+        course = enrollment.course
+        results.append(
+            {
+                "enrollment_id": enrollment.id,
+                "enrolled_at": enrollment.enrolled_at,
+                "status": enrollment.status,
+                "course": {
+                    "id": course.id,
+                    "title": course.title,
+                    "description": course.description,
+                    "level": course.level.value if hasattr(course.level, "value") else str(course.level),
+                    "price": float(course.price),
+                    "is_free": course.is_free,
+                    "is_published": course.is_published,
+                    "teacher_id": course.teacher_id,
+                },
+                "total_lessons": total,
+                "completed_lessons": completed,
+                "percentage": percentage,
+                "next_lesson_id": next_lesson_id,
+            }
+        )
+
+    return results

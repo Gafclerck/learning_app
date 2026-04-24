@@ -30,6 +30,12 @@ function Navbar() {
               My Learning
             </Link>
 
+            {user?.role === "student" && (
+              <Link to="/become-teacher" className="text-gray-600 hover:text-blue-600 transition-colors">
+                Become a teacher
+              </Link>
+            )}
+
             <Link to="/chat" className="text-gray-600 hover:text-blue-600 transition-colors">
               Chat
             </Link>
@@ -39,6 +45,18 @@ function Navbar() {
               <Link to="/teacher" className="text-gray-600 hover:text-blue-600 transition-colors">
                 My Courses
               </Link>
+            )}
+
+            {/* Visible seulement si admin */}
+            {user?.role === "admin" && (
+              <div className="flex items-center gap-4">
+                <Link to="/admin/users" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  Users
+                </Link>
+                <Link to="/admin/teacher-requests" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  Teacher Requests
+                </Link>
+              </div>
             )}
           </>
         )}

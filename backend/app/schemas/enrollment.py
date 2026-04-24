@@ -33,3 +33,25 @@ class CourseProgressResponse(BaseModel):
     completed_lessons: int
     percentage: int
     roadmap: list[LessonProgressResponse]
+
+
+class MyEnrollmentCourseResponse(BaseModel):
+    id: int
+    title: str
+    description: str | None
+    level: str
+    price: float
+    is_free: bool
+    is_published: bool
+    teacher_id: int
+
+
+class MyEnrollmentResponse(BaseModel):
+    enrollment_id: int
+    enrolled_at: datetime
+    status: EnrollmentStatus
+    course: MyEnrollmentCourseResponse
+    total_lessons: int
+    completed_lessons: int
+    percentage: int
+    next_lesson_id: int | None

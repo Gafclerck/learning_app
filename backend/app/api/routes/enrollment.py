@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.api.deps import RequireAdmin, RequireTeacher, SessionDep, CurrentUser
 from app.models.user import User
-from app.schemas.enrollment import EnrollmentResponse, CourseProgressResponse
+from app.schemas.enrollment import EnrollmentResponse, CourseProgressResponse, MyEnrollmentResponse
 from app.services.enrollment_service import (
     enroll_student,
     complete_lesson,
-    get_course_progress
+    get_course_progress,
+    list_my_enrollments
 )
 
 router = APIRouter()
@@ -37,3 +38,8 @@ def progress(
     current_user: CurrentUser
 ):
     return get_course_progress(db, course_id, current_user)
+
+
+@router.get("/my", response_model=list[MyEnrollmentResponse])
+def my_enrollments(db: SessionDep, current_user: CurrentUser):
+    return list_my_enrollments(db, current_user)

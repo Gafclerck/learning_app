@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getCourseById, getCourseProgress, enrollInCourse } from "../services/courseService"
+import { getCourseById, getCourseProgress } from "../services/courseService"
+import { checkoutCourse } from "../services/paymentService"
 import useAuthStore from "../store/authStore"
 
 // Icône cadenas SVG inline — pas besoin de librairie externe
@@ -139,10 +140,23 @@ function CourseDetailPage() {
 
     setEnrolling(true)
     try {
-      await enrollInCourse(id)
-      // Après inscription, on recharge la progression
-      const progressData = await getCourseProgress(id)
-      setProgress(progressData)
+      const result = await checkoutCourse(id)
+
+      // Course is free => backend enrolls immediately
+      if (result?.type === "free") {
+        const progressData = await getCourseProgress(id)
+        setProgress(progressData)
+        return
+      }
+
+      // Paid => redirect to Stripe
+      if (result?.type === "paid" && result?.checkout_url) {
+        localStorage.setItem("pending_checkout_course_id", String(id))
+        window.location.href = result.checkout_url
+        return
+      }
+
+      setError("Checkout failed. Please try again.")
     } catch (err) {
       setError(err.response?.data?.detail || "Enrollment failed.")
     } finally {

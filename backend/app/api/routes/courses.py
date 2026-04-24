@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
-from app.api.deps import RequireTeacher, SessionDep
+from app.api.deps import RequireTeacher, SessionDep, CurrentUser
 from app.schemas.course import (
     CourseCreate, CourseUpdate, CourseResponse, CourseDetailResponse,
     LessonCreate, LessonUpdate, LessonResponse
 )
 from app.services.course_service import (
-    create_course, get_all_courses, get_course_by_id,
+    create_course, get_all_courses, get_my_courses, get_course_by_id,
     update_course, delete_course,
-    create_lesson, update_lesson, delete_lesson
+    create_lesson, update_lesson, delete_lesson, get_lesson_by_id
 )
 
 router = APIRouter()
@@ -18,6 +18,11 @@ router = APIRouter()
 def list_courses(db: SessionDep):
     """Public — everyone can see published courses"""
     return get_all_courses(db)
+
+@router.get("/my", response_model=list[CourseResponse])
+def my_courses(db: SessionDep, current_user: RequireTeacher):
+    """Teacher-only — list own courses (published & drafts)."""
+    return get_my_courses(db, current_user)
 
 
 @router.get("/{course_id}", response_model=CourseDetailResponse)
@@ -84,3 +89,11 @@ def remove_lesson(
     current_user: RequireTeacher
 ):
     delete_lesson(db, lesson_id, current_user)
+
+@router.get("/lessons/{lesson_id}", response_model=LessonResponse)
+def get_lesson(
+    lesson_id: int,
+    db: SessionDep,
+    user : CurrentUser
+):
+    return get_lesson_by_id(db, lesson_id, user)
