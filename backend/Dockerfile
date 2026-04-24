@@ -12,8 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-#port
 EXPOSE 8000
 
-# Étape 7 — commande de démarrage
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# On utilise un script de démarrage qui :
+# 1. Lance les migrations Alembic
+# 2. Démarre l'API
+CMD ["bash", "start.sh"]
