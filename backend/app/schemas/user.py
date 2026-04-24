@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from app.models.user import UserRole
+from typing import Optional
 
 class RegistrationRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -22,6 +23,11 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True  
 
+class UserUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    password: Optional[str] = Field(None, min_length=6, max_length=100)
+    is_active: Optional[bool] = None
+    role: Optional[UserRole] = None
 
 class VerifyCodeRequest(BaseModel):
     email: EmailStr
