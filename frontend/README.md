@@ -1,16 +1,67 @@
-# React + Vite
+# Frontend — LearnFast
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live:** [https://learnfast-olive.vercel.app](https://learnfast-olive.vercel.app)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech
 
-## React Compiler
+- **React 19** — UI library
+- **Vite** — build tool
+- **Tailwind CSS v4** — utility-first styling
+- **Zustand** — global state management
+- **Axios** — HTTP client with JWT interceptor
+- **React Router v7** — client-side routing
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Local Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+echo "VITE_API_URL=http://localhost:8000" > .env
+
+# Start dev server
+npm run dev
+```
+
+App available at `http://localhost:5173`
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend API base URL |
+
+---
+
+## Structure
+
+```
+src/
+├── pages/          → One file per route
+├── components/
+│   ├── layout/     → Navbar, Layout, ProtectedRoute
+│   ├── ui/         → Reusable components (Button, Spinner...)
+│   └── features/   → Domain-specific components
+├── modules/
+│   └── chat/       → Self-contained chat module (hooks, store, components)
+├── services/       → All API calls (Axios)
+└── store/          → Zustand global stores
+```
+
+---
+
+## Build
+
+```bash
+npm run build   # Output in /dist
+npm run preview # Preview production build locally
+```

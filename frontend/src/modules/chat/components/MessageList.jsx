@@ -1,8 +1,3 @@
-/**
- * MessageList Component
- * Displays all messages in a room with auto-scroll to bottom
- */
-
 import React, { useEffect, useRef } from "react"
 import { Message } from "./Message"
 import useAuthStore from "../../../store/authStore"
@@ -15,10 +10,8 @@ export const MessageList = React.memo(({
 }) => {
   const auth = useAuthStore()
   const messages_end_ref = useRef(null)
-  const container_ref = useRef(null)
   const last_message_count = useRef(0)
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messages.length > last_message_count.current) {
       setTimeout(() => {
@@ -30,28 +23,31 @@ export const MessageList = React.memo(({
 
   if (is_loading && messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
-        <div className="animate-pulse">Loading messages...</div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-gray-400">
+          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">Loading messages...</span>
+        </div>
       </div>
     )
   }
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-600">
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-lg font-medium mb-1">No messages yet</p>
-          <p className="text-sm">Start a conversation by sending a message</p>
+          <div className="text-5xl mb-4">💬</div>
+          <p className="text-gray-600 font-medium">No messages yet</p>
+          <p className="text-gray-400 text-sm mt-1">
+            Be the first to say something!
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      ref={container_ref}
-      className="flex-1 overflow-y-auto px-4 py-4 space-y-2 scroll-smooth"
-    >
+    <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50">
       {messages.map((message) => (
         <Message
           key={message.id}

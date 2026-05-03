@@ -1,49 +1,59 @@
-/**
- * ConversationListItem Component
- * Single conversation in the left panel list
- */
-
 import React from "react"
 import { getConversationTitle, getConversationSubtitle } from "../utils/formatters"
+
+function getInitials(name) {
+  if (!name) return "?"
+  return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+}
+
+function getAvatarColor(name) {
+  const colors = [
+    "bg-blue-500", "bg-purple-500", "bg-green-500",
+    "bg-orange-500", "bg-pink-500", "bg-teal-500",
+  ]
+  if (!name) return colors[0]
+  return colors[name.charCodeAt(0) % colors.length]
+}
 
 export const ConversationListItem = React.memo(({
   conversation,
   is_active = false,
   onClick,
-  unread_indicator = false
 }) => {
-  const title = getConversationTitle(conversation)
+  const title    = getConversationTitle(conversation)
   const subtitle = getConversationSubtitle(conversation)
 
   return (
     <div
       onClick={onClick}
-      className={`p-3 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-colors ${
+      className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer transition-colors border-b border-gray-100 ${
         is_active
-          ? "bg-blue-50 dark:bg-gray-800"
-          : "hover:bg-gray-50 dark:hover:bg-gray-900"
+          ? "bg-blue-50 border-l-2 border-l-blue-600"
+          : "hover:bg-gray-50 border-l-2 border-l-transparent"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {title}
-            </h3>
-            {conversation.type === "group" && (
-              <span className="text-xs px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full flex-shrink-0">
-                Group
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-            {subtitle}
-          </p>
+      {/* Avatar */}
+      <div className={`w-10 h-10 rounded-full ${getAvatarColor(title)} text-white text-sm font-bold flex items-center justify-center flex-shrink-0`}>
+        {conversation.type === "group" ? "📚" : getInitials(title)}
+      </div>
+
+      {/* Infos */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className={`text-sm font-semibold truncate ${is_active ? "text-blue-700" : "text-gray-900"}`}>
+            {title}
+          </h3>
+          {conversation.unread_count > 0 && (
+            <span className="bg-blue-600 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 flex-shrink-0 font-medium">
+              {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
+            </span>
+          )}
         </div>
-        {unread_indicator && conversation.unread_count > 0 && (
-          <div className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
-            {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
-          </div>
+        <p className="text-xs text-gray-500 truncate mt-0.5">{subtitle}</p>
+        {conversation.last_message && (
+          <p className="text-xs text-gray-400 truncate mt-0.5">
+            {conversation.last_message}
+          </p>
         )}
       </div>
     </div>

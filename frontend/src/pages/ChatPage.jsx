@@ -1,14 +1,12 @@
-/**
- * Chat Page
- * Main page for the chat module
- */
-
 import React from "react"
 import { ChatWindow } from "../modules/chat"
 
 export default function ChatPage() {
   return (
-    <div style={{ height: "calc(100vh - 100px)" }} className="flex flex-col -mx-6 -my-8">
+    // On prend toute la hauteur disponible entre la navbar et le bas de l'écran
+    // h-[calc(100vh-57px)] = hauteur viewport - hauteur navbar (57px)
+    // overflow-hidden pour éviter le double scrollbar
+    <div className="h-[calc(100vh-57px)] -mx-4 md:-mx-6 -my-8 overflow-hidden">
       <ChatWindow />
     </div>
   )
